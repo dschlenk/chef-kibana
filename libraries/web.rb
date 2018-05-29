@@ -27,7 +27,7 @@ class Chef
     attribute(:version, kind_of: String, default: lazy { node['kibana']['version'] })
     attribute(:default_site_enabled, kind_of: [TrueClass, FalseClass], default: false)
     attribute(:docroot, kind_of: String, default: '/opt/kibana/current/kibana')
-    attribute(:kibana_port, kind_of: Integer, default: '5601')
+    attribute(:kibana_port, kind_of: Integer, default: 5601)
   end
 
   class Provider::KibanaWeb < Chef::Provider::LWRPBase # ~FC057, ~FC058
@@ -40,10 +40,10 @@ class Chef
 
         case resources[:type]
         when 'apache'
-          node.set['apache']['default_site_enabled'] = resources[:default_site_enabled]
+          node.default['apache']['default_site_enabled'] = resources[:default_site_enabled]
 
-          node.set['apache']['listen_ports'] = [] unless resources[:default_site_enabled]
-          node.set['apache']['listen_ports'] << resources[:listen_port]
+          node.default['apache']['listen_ports'] = [] unless resources[:default_site_enabled]
+          node.default['apache']['listen_ports'] << resources[:listen_port]
 
           %w(apache2 apache2::mod_dir apache2::mod_proxy apache2::mod_proxy_http).each do |recipe|
             @run_context.include_recipe recipe
@@ -65,8 +65,8 @@ class Chef
           end
 
         when 'nginx'
-          node.set['nginx']['default_site_enabled'] = resources[:default_site_enabled]
-          node.set['nginx']['install_method'] = node['kibana']['nginx']['install_method']
+          node.default['nginx']['default_site_enabled'] = resources[:default_site_enabled]
+          node.default['nginx']['install_method'] = node['kibana']['nginx']['install_method']
           @run_context.include_recipe 'nginx'
 
           template "#{node['nginx']['dir']}/sites-available/#{resources[:name]}" do
